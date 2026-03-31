@@ -2,12 +2,11 @@
 
 import { useRef, useState } from "react"
 import { motion, useInView } from "framer-motion"
-import { Check, Minus, Clock, Zap, Star, TrendingUp, AlertTriangle, Loader2 } from "lucide-react"
+import { Check, Minus, Loader2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { WaitlistForm } from "@/components/waitlist-form"
 
 type PlanFeature = {
   label: string
@@ -43,7 +42,6 @@ const plans = [
     period: "/month",
     description: "For teams hitting their first limits.",
     highlight: true,
-    founderPrice: "$23",
   },
   {
     id: "scale",
@@ -52,30 +50,6 @@ const plans = [
     period: "/month",
     description: "For agencies and high-volume bases.",
     highlight: false,
-    founderPrice: "$63",
-  },
-]
-
-const founderPerks = [
-  {
-    icon: Clock,
-    title: "2 months free",
-    detail: "Your first two billing months are on us — no charge, no conditions.",
-  },
-  {
-    icon: TrendingUp,
-    title: "20% off, forever",
-    detail: "Every invoice you ever receive is 20% below the public price. Permanently.",
-  },
-  {
-    icon: Zap,
-    title: "First access",
-    detail: "You get in before anyone else. No waiting list when we launch — you're already through.",
-  },
-  {
-    icon: Star,
-    title: "Founding Member badge",
-    detail: "Permanent recognition on your account. Priority support for life.",
   },
 ]
 
@@ -124,12 +98,6 @@ function PlanCard({ plan, index }: { plan: (typeof plans)[0]; index: number }) {
             </span>
             <span className="mb-1 text-sm text-muted-foreground">{plan.period}</span>
           </div>
-
-          {"founderPrice" in plan && (
-            <p className="mt-1 text-xs text-emerald-600 font-medium">
-              Founding members pay {plan.founderPrice}/mo — forever
-            </p>
-          )}
 
           <p className="mt-2 text-xs text-muted-foreground">{plan.description}</p>
         </div>
@@ -184,7 +152,7 @@ function PlanCTA({ planId, highlight }: { planId: string; highlight: boolean }) 
         window.location.href = data.url
       } else {
         // Not logged in — redirect to login first
-        window.location.href = `/login?redirect=/dashboard&plan=${planId}`
+        window.location.href = `/login?plan=${planId}`
       }
     } catch {
       window.location.href = "/login"
@@ -209,8 +177,6 @@ function PlanCTA({ planId, highlight }: { planId: string; highlight: boolean }) 
 export function PricingSection() {
   const titleRef = useRef<HTMLDivElement>(null)
   const titleInView = useInView(titleRef, { once: true, margin: "-80px" })
-  const founderRef = useRef<HTMLDivElement>(null)
-  const founderInView = useInView(founderRef, { once: true, margin: "-80px" })
 
   return (
     <section id="pricing" aria-labelledby="pricing-heading" className="py-24 lg:py-32">
@@ -262,138 +228,12 @@ export function PricingSection() {
           ))}
         </div>
 
-        {/* ── Founding Member Waitlist Section ── */}
-        <motion.div
-          ref={founderRef}
-          initial={{ opacity: 0, y: 32 }}
-          animate={founderInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-10 overflow-hidden rounded-2xl border border-foreground/10 bg-foreground text-background"
-        >
-          <div className="grid grid-cols-1 gap-0 lg:grid-cols-12">
-
-            {/* Left — copy */}
-            <div className="flex flex-col justify-center p-8 lg:col-span-7 lg:p-12">
-
-              {/* Scarcity pill */}
-              <div className="mb-6 inline-flex w-fit items-center gap-1.5 rounded-full bg-background/10 px-3 py-1 text-xs font-medium text-background/80">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Founding member spots are limited
-              </div>
-
-              <h3 className="font-heading mb-4 text-2xl font-bold leading-snug text-background lg:text-3xl">
-                Your Airtable base is hitting a wall{" "}
-                <span className="text-background/60">right now.</span>
-                <br />
-                Don&rsquo;t pay full price to fix it.
-              </h3>
-
-              <p className="mb-6 text-sm leading-relaxed text-background/70">
-                VayuBridge removes every limit — records, automations, API rate caps — in 90 seconds.
-                We&rsquo;re launching soon. Founding members get in early and pay less, permanently.
-                Once we launch, this offer is gone. There&rsquo;s no way to get it after.
-              </p>
-
-              {/* Pain echo */}
-              <div className="mb-8 rounded-lg border border-background/10 bg-background/5 px-4 py-3">
-                <div className="flex items-start gap-2.5">
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
-                  <p className="text-xs leading-relaxed text-background/70">
-                    Every week you wait is another week where your automations stop firing, your forms
-                    reject new leads, and your team works around limits that shouldn&rsquo;t exist.
-                    The fix is ready. The founding price won&rsquo;t be.
-                  </p>
-                </div>
-              </div>
-
-              {/* Perks grid */}
-              <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {founderPerks.map((perk) => {
-                  const Icon = perk.icon
-                  return (
-                    <div key={perk.title} className="flex items-start gap-3">
-                      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-background/10">
-                        <Icon className="h-3.5 w-3.5 text-background" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-background">{perk.title}</p>
-                        <p className="text-xs leading-relaxed text-background/60">{perk.detail}</p>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-
-              {/* Form */}
-              <WaitlistForm
-                source="pricing-founder"
-                placeholder="Enter your work email"
-                buttonLabel="Claim Founding Member Spot"
-                variant="inverted"
-                className="max-w-md"
-              />
-              <p className="mt-2 text-xs text-background/50">
-                No credit card. No commitment. Just your spot in line.
-              </p>
-            </div>
-
-            {/* Right — pricing comparison */}
-            <div className="flex flex-col justify-center border-t border-background/10 p-8 lg:col-span-5 lg:border-t-0 lg:border-l lg:p-12">
-              <p className="font-mono mb-6 text-[10px] font-medium uppercase tracking-widest text-background/50">
-                What founding members pay
-              </p>
-
-              <div className="space-y-5">
-                {[
-                  { plan: "Free", public: "$0/mo", founder: "$0/mo", savings: null },
-                  {
-                    plan: "Growth",
-                    public: "$29/mo",
-                    founder: "$23/mo",
-                    savings: "Save $72/year + 2 months free",
-                  },
-                  {
-                    plan: "Scale",
-                    public: "$79/mo",
-                    founder: "$63/mo",
-                    savings: "Save $192/year + 2 months free",
-                  },
-                ].map((row) => (
-                  <div key={row.plan} className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-background">{row.plan}</p>
-                      {row.savings && (
-                        <p className="text-[11px] text-emerald-400">{row.savings}</p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      {row.savings ? (
-                        <>
-                          <p className="text-xs text-background/40 line-through">{row.public}</p>
-                          <p className="font-heading text-lg font-bold text-background">
-                            {row.founder}
-                          </p>
-                        </>
-                      ) : (
-                        <p className="font-heading text-lg font-bold text-background">
-                          {row.public}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <Separator className="my-6 bg-background/10" />
-
-              <p className="text-xs leading-relaxed text-background/50">
-                Founding member pricing is locked at signup and never changes — even if public
-                prices increase. This is a one-time window that closes at launch.
-              </p>
-            </div>
-
-          </div>
-        </motion.div>
+        {/* ── Add-on line ── */}
+        <p className="mt-8 text-center text-sm text-muted-foreground">
+          Need more records?{" "}
+          <span className="font-medium text-foreground">+100K synced records for $10/mo.</span>{" "}
+          No surprises.
+        </p>
 
       </div>
     </section>

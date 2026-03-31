@@ -65,8 +65,11 @@ export function Navbar() {
 
         {/* Desktop CTA */}
         <div className="hidden items-center gap-3 md:flex">
-          <Button size="sm" onClick={() => scrollToHash("#hero")}>
-            Get Early Access
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/login">Sign In</Link>
+          </Button>
+          <Button size="sm" asChild>
+            <Link href="/login">Get Started Free</Link>
           </Button>
         </div>
 
@@ -94,8 +97,11 @@ export function Navbar() {
                 ))}
               </nav>
               <div className="flex flex-col gap-2 pt-4">
-                <Button onClick={() => scrollToHash("#hero")}>
-                  Get Early Access
+                <Button variant="ghost" asChild>
+                  <Link href="/login">Sign In</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/login">Get Started Free</Link>
                 </Button>
               </div>
             </div>

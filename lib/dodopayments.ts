@@ -3,7 +3,7 @@ import DodoPayments from "dodopayments"
 export function createDodoClient() {
   return new DodoPayments({
     bearerToken: process.env.DODO_API_KEY!,
-    environment: process.env.NODE_ENV === "production" ? "live_mode" : "test_mode",
+    environment: (process.env.DODO_ENVIRONMENT as "live_mode" | "test_mode") ?? "test_mode",
   })
 }
 

@@ -4,8 +4,8 @@ import { useRef } from "react"
 import { motion, useInView } from "framer-motion"
 import { Database, Zap, CheckCircle2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { WaitlistForm } from "@/components/waitlist-form"
 
 const headlineWords = ["You", "Built", "Something", "Great", "in", "Airtable."]
 const headlineWords2 = ["Don't", "Let", "a", "Limit", "Tear", "It", "Down."]
@@ -172,20 +172,18 @@ export function Hero() {
             restrictions — without touching your existing bases or workflows.
           </motion.p>
 
-          {/* Waitlist CTA */}
+          {/* CTA */}
           <motion.div
             className="flex max-w-md flex-col gap-3"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9, duration: 0.5 }}
           >
-            <WaitlistForm
-              source="hero"
-              placeholder="Enter your work email"
-              buttonLabel="Get Early Access"
-            />
+            <Button size="lg" asChild>
+              <a href="/login">Get Started Free</a>
+            </Button>
             <span className="text-xs text-muted-foreground">
-              Free for founding members · No credit card · Be first in line
+              No credit card required · 90 seconds to connect · Your base is unchanged
             </span>
           </motion.div>
 

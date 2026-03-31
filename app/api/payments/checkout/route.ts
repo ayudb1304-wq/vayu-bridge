@@ -26,11 +26,7 @@ export async function POST(request: Request) {
     const client = createDodoClient()
     const session = await client.subscriptions.create({
       billing: {
-        city: "",
         country: "US",
-        state: "",
-        street: "",
-        zipcode: "",
       },
       customer: {
         email: user.email!,
