@@ -13,7 +13,7 @@
 **Slug:** `/blog/airtable-automation-maximum-hit`
 **Meta description:** Hit Airtable's 50-automation limit? Here's exactly what it means, why it happens, every workaround available, and the cleanest long-term solution.
 **Target keyword:** `airtable automation maximum hit`
-**Publish:** Week 1 — highest search intent, publish first
+**Publish:** Week 1 — highest search intent, publish first.
 
 ---
 
