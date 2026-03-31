@@ -89,6 +89,14 @@ export function SyncProgress({ connectedBaseId, syncLogId, onComplete }: Props) 
   const isComplete = log.status === "complete"
   const isError = log.status === "error"
 
+  // Parse "(current/total)" from messages like "Syncing "Bugs" (1/3)"
+  const progressMatch = log.message?.match(/\((\d+)\/(\d+)\)/)
+  const progressValue = isComplete
+    ? 100
+    : progressMatch
+    ? Math.round((parseInt(progressMatch[1]) / parseInt(progressMatch[2])) * 100)
+    : null
+
   return (
     <div className="space-y-2 rounded-lg border border-border bg-muted/40 p-4">
       <div className="flex items-center justify-between gap-2">
@@ -102,8 +110,11 @@ export function SyncProgress({ connectedBaseId, syncLogId, onComplete }: Props) 
         </Badge>
       </div>
 
-      {isRunning && (
-        <Progress value={undefined} className="h-1.5 animate-pulse" />
+      {(isRunning || isComplete) && (
+        <Progress
+          value={progressValue ?? undefined}
+          className={`h-1.5 ${progressValue === null ? "animate-pulse" : ""}`}
+        />
       )}
 
       <div className="flex items-center justify-between text-xs text-muted-foreground">
