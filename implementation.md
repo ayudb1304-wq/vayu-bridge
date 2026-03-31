@@ -235,13 +235,13 @@
 
 ### Tasks
 
-- [ ] Create Airtable OAuth app at `airtable.com/create/oauth`
+- [x] Create Airtable OAuth app at `airtable.com/create/oauth`
   - Scopes: `data.records:read`, `data.records:write`, `schema.bases:read`, `webhook:manage`
-  - Redirect URI: `https://yourdomain.com/api/airtable/callback`
-- [ ] Store `AIRTABLE_CLIENT_ID`, `AIRTABLE_CLIENT_SECRET` in `.env.local`
-- [ ] Create `app/api/airtable/connect/route.ts` — generates OAuth authorization URL + PKCE code verifier, stores in Supabase session
-- [ ] Create `app/api/airtable/callback/route.ts` — exchanges code for tokens, encrypts and stores in `connected_bases` table
-- [ ] Run Supabase migration: create `connected_bases` table
+  - Redirect URI: `http://localhost:3000/api/airtable/callback`
+- [x] Store `AIRTABLE_CLIENT_ID`, `AIRTABLE_CLIENT_SECRET`, `TOKEN_ENCRYPTION_KEY` in `.env.local`
+- [x] Create `app/api/airtable/connect/route.ts` — generates OAuth authorization URL + PKCE code verifier, stores verifier in httpOnly cookies
+- [x] Create `app/api/airtable/callback/route.ts` — exchanges code for tokens, encrypts and stores in `connected_bases` table
+- [x] Run Supabase migration: create `connected_bases` table *(run `supabase/migrations/20260331_create_connected_bases.sql` in SQL Editor)*
   ```sql
   create table connected_bases (
     id uuid primary key default gen_random_uuid(),
@@ -258,9 +258,9 @@
   alter table connected_bases enable row level security;
   create policy "users see own bases" on connected_bases for all using (auth.uid() = user_id);
   ```
-- [ ] Create `app/api/airtable/bases/route.ts` — lists bases in connected workspace using stored token
-- [ ] Build `components/dashboard/connect-airtable-button.tsx` — triggers OAuth flow
-- [ ] Build `components/dashboard/base-selector.tsx` — lists bases post-auth, user picks which to sync
+- [x] Create `app/api/airtable/bases/route.ts` — lists bases in connected workspace using stored token
+- [x] Build `components/dashboard/connect-airtable-button.tsx` — triggers OAuth flow
+- [x] Build `components/dashboard/base-selector.tsx` — lists bases post-auth, user picks which to sync
 - [ ] Implement token refresh logic (call Airtable refresh endpoint before token expiry)
 
 ### Exit Criteria — Phase 3
@@ -281,24 +281,22 @@
 
 ### Tasks
 
-- [ ] Install `@upstash/qstash` SDK
-- [ ] Create `sync_log` Supabase table (migration)
-- [ ] Create `app/api/sync/enqueue/route.ts` — receives `base_id`, enqueues initial sync job to QStash
-- [ ] Create `app/api/sync/initial/route.ts` — the QStash-triggered worker
-  - Fetch schema from Airtable → introspect field types → map to PostgreSQL types
-  - Dynamic DDL: `CREATE TABLE IF NOT EXISTS airtable_{base_id}_{table_slug} (...)`
-  - JSONB fallback for linked records, lookups, rollups
-  - Paginate records (100/page) → bulk upsert to Supabase
-  - Update `sync_log` with progress
-  - On completion: register Airtable webhook, set `sync_status = 'active'`
-- [ ] Create `app/api/webhooks/airtable/route.ts` — real-time change receiver
-  - Verify HMAC-SHA256 signature
-  - Handle `createdFieldsById` | `destroyedFieldIds` | `changedFieldsById`
-  - Upsert / delete rows in dynamic tables
-  - Log to `sync_log`
-- [ ] Create fallback cron: `app/api/cron/poll-airtable/route.ts` — polls every 15 min if webhook is inactive
-- [ ] Build `components/dashboard/sync-progress.tsx` — shows `X / Y records synced` live via Supabase realtime
-- [ ] Apply Row Level Security to all `airtable_*` dynamic tables on creation
+- [x] Install `@upstash/qstash` SDK
+- [x] Create `sync_log` + `synced_records` Supabase tables (migration: `20260331_create_sync_tables.sql`)
+- [x] Create `app/api/sync/enqueue/route.ts` — receives `connectedBaseId`, creates sync_log, enqueues to QStash
+- [x] Create `app/api/sync/initial/route.ts` — QStash-triggered worker with job chaining
+  - Verifies QStash signature
+  - Discovers Airtable schema (tables list)
+  - Paginates records (100/page) → bulk upserts to `synced_records` (JSONB fields)
+  - Updates `sync_log` progress via `increment_sync_records` RPC
+  - On completion: registers Airtable webhook, sets `sync_status = 'active'`
+- [x] Create `app/api/webhooks/airtable/route.ts` — real-time change receiver
+  - Verifies HMAC-SHA256 signature against stored `webhook_secret_enc`
+  - Fetches change payloads from Airtable payloads API
+  - Upserts created/updated records, deletes destroyed records in `synced_records`
+- [x] Create fallback cron: `app/api/cron/poll-airtable/route.ts` — re-enqueues sync every 15 min for stale bases
+- [x] Build `components/dashboard/sync-progress.tsx` — live progress via Supabase Realtime
+- [x] RLS applied to `synced_records` via joined policy on `connected_bases.user_id`
 
 ### Exit Criteria — Phase 4
 
