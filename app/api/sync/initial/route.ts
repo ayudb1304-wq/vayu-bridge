@@ -93,6 +93,19 @@ export async function POST(request: NextRequest) {
 
   // 4. All tables done → register webhook + complete
   if (tableIndex >= tables.length) {
+    // Always mark sync complete regardless of webhook registration outcome
+    await db.from("connected_bases").update({
+      sync_status: "active",
+      last_synced_at: new Date().toISOString(),
+    }).eq("id", connectedBaseId)
+
+    await db.from("sync_log").update({
+      status: "complete",
+      message: "Sync complete",
+      completed_at: new Date().toISOString(),
+    }).eq("id", syncLogId)
+
+    // Webhook registration is best-effort
     try {
       const webhookUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/api/webhooks/airtable`
       const { webhookId, macSecretBase64 } = await registerAirtableWebhook(
@@ -103,19 +116,10 @@ export async function POST(request: NextRequest) {
       await db.from("connected_bases").update({
         webhook_id: webhookId,
         webhook_secret_enc: encrypt(macSecretBase64),
-        sync_status: "active",
-        last_synced_at: new Date().toISOString(),
       }).eq("id", connectedBaseId)
     } catch (e) {
-      // Webhook registration failure doesn't fail the sync — polling fallback covers it
-      console.error("Webhook registration failed:", e)
+      console.error("[sync/initial] Webhook registration failed:", e)
     }
-
-    await db.from("sync_log").update({
-      status: "complete",
-      message: "Sync complete",
-      completed_at: new Date().toISOString(),
-    }).eq("id", syncLogId)
 
     return NextResponse.json({ done: true })
   }
@@ -151,11 +155,12 @@ export async function POST(request: NextRequest) {
         { onConflict: "connected_base_id,airtable_table_id,airtable_record_id" }
       )
 
-      // Increment records_synced
-      await db.rpc("increment_sync_records", {
+      // Increment records_synced (non-fatal if RPC missing)
+      const { error: rpcError } = await db.rpc("increment_sync_records", {
         log_id: syncLogId,
         amount: data.records.length,
       })
+      if (rpcError) console.warn("[sync/initial] increment_sync_records RPC error:", rpcError.message)
     }
 
     // 6. Chain next job
