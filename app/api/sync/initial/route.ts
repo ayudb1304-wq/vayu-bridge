@@ -1,4 +1,5 @@
-import { Receiver, Client } from "@upstash/qstash"
+import { Receiver } from "@upstash/qstash"
+import { createQStashClient } from "@/lib/qstash"
 import { createServiceClient } from "@/utils/supabase/service"
 import { getValidAccessToken, airtableFetch, registerAirtableWebhook } from "@/lib/airtable"
 import { encrypt } from "@/lib/crypto"
@@ -172,9 +173,9 @@ export async function POST(request: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-dev-bypass": "true" },
         body: JSON.stringify(nextPayload),
-      }).catch(console.error)
+      }).catch((e) => console.error("[sync/initial] chain error:", e))
     } else {
-      const qstash = new Client({ token: process.env.QSTASH_TOKEN! })
+      const qstash = createQStashClient()
       await qstash.publishJSON({ url: workerUrl, body: nextPayload })
     }
 
