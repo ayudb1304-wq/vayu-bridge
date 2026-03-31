@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 import { ConnectAirtableButton } from "./connect-airtable-button"
 import { SyncProgress } from "./sync-progress"
 import { Database, RefreshCw } from "lucide-react"
@@ -107,7 +108,8 @@ export function BaseSelector() {
 
           return (
             <Card key={base.id}>
-              <CardHeader className="pb-2">
+              <Link href={`/dashboard/${base.id}`} className="block focus-visible:outline-none">
+              <CardHeader className="pb-2 hover:bg-muted/30 rounded-t-lg transition-colors">
                 <div className="flex items-start justify-between gap-2">
                   <Database className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
                   <Badge variant={status.variant} className="ml-auto">{status.label}</Badge>
@@ -117,6 +119,7 @@ export function BaseSelector() {
                 </CardTitle>
                 <CardDescription className="font-mono text-xs">{base.airtable_base_id}</CardDescription>
               </CardHeader>
+              </Link>
               <CardContent className="space-y-3">
                 <p className="text-xs text-muted-foreground">
                   {base.last_synced_at

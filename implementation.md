@@ -261,7 +261,7 @@
 - [x] Create `app/api/airtable/bases/route.ts` — lists bases in connected workspace using stored token
 - [x] Build `components/dashboard/connect-airtable-button.tsx` — triggers OAuth flow
 - [x] Build `components/dashboard/base-selector.tsx` — lists bases post-auth, user picks which to sync
-- [ ] Implement token refresh logic (call Airtable refresh endpoint before token expiry)
+- [x] Implement token refresh logic (call Airtable refresh endpoint before token expiry)
 
 ### Exit Criteria — Phase 3
 
@@ -317,18 +317,18 @@
 
 ### Tasks
 
-- [ ] Install `@tanstack/react-table` for table virtualization
-- [ ] Create `app/(dashboard)/dashboard/[baseId]/page.tsx`
-- [ ] Build `components/dashboard/data-table.tsx`
-  - Virtual scroll (render 100 rows, load more on scroll)
-  - Full-text search via Supabase `tsvector` (or `ilike` for v1)
+- [x] Install `@tanstack/react-table` for table virtualization
+- [x] Create `app/(dashboard)/dashboard/[baseId]/page.tsx`
+- [x] Build `components/dashboard/data-table.tsx`
+  - Infinite scroll (IntersectionObserver sentinel, 50 rows/page, server-side cursor pagination)
+  - Full-text search via `ilike` on `fields::text` cast
   - Column filters: equals, contains, gt/lt, is empty
   - Multi-column sort
   - Column visibility toggle (`DropdownMenu` from shadcn)
   - shadcn components: `Table`, `Input`, `Select`, `DropdownMenu`, `Button`, `Badge`
-- [ ] Build CSV export (streaming query, trigger download)
-- [ ] Build Excel export (`xlsx` library, client-side)
-- [ ] Build `components/dashboard/table-stats-bar.tsx` — shows record count, filter status, last synced time
+- [x] Build CSV export (all matching records up to 10k cap, client-side Blob download)
+- [x] Build Excel export (`xlsx` library, dynamic import, client-side)
+- [x] Build `components/dashboard/table-stats-bar.tsx` — shows record count, filter status, last synced time
 
 ### Exit Criteria — Phase 5
 
