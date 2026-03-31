@@ -1,4 +1,4 @@
-# AirBridge — Product Requirements Document
+# VayuBridge — Product Requirements Document
 
 > **Break Free from Airtable Limits. Keep Everything You Love.**
 
@@ -36,13 +36,13 @@ A middleware SaaS that syncs Airtable data to a real PostgreSQL database and ext
 
 ## 1. Executive Summary
 
-> 💡 **The One-Line Pitch:** AirBridge is a middleware SaaS that syncs Airtable data to a real PostgreSQL database and extends automations beyond Airtable's hard limits — so users keep their familiar Airtable interface while eliminating every wall that blocks them.
+> 💡 **The One-Line Pitch:** VayuBridge is a middleware SaaS that syncs Airtable data to a real PostgreSQL database and extends automations beyond Airtable's hard limits — so users keep their familiar Airtable interface while eliminating every wall that blocks them.
 
 Airtable has 450,000+ organizational customers. A meaningful percentage of them — power users, operations teams, and SMB owners building production workflows — regularly hit three hard limits that Airtable does not plan to remove on lower pricing tiers: a 50,000-record cap per base, a 50-automation cap per base, and a 1,000 API calls/month cap on free plans.
 
 When these limits are hit, users are forced to choose between paying Airtable's enterprise tier (often 10x more expensive), migrating to a full database solution (weeks of work), or patching together brittle Zapier workarounds that cost $50–200/month on top of their existing Airtable plan.
 
-AirBridge offers a fourth option: **stay in Airtable, pay $29–79/month, and remove the limits entirely.** The product is buildable by one developer in two weeks on a serverless Node.js/Next.js stack using Supabase, Vercel, and Dodopayments.
+VayuBridge offers a fourth option: **stay in Airtable, pay $29–79/month, and remove the limits entirely.** The product is buildable by one developer in two weeks on a serverless Node.js/Next.js stack using Supabase, Vercel, and Dodopayments.
 
 | Problem Severity | Market Size | Build Timeline | Target MRR (12mo) |
 |---|---|---|---|
@@ -71,7 +71,7 @@ The following limitations are documented in Airtable's official support pages an
 - **Full migration:** Moving to Supabase, Notion, or a custom database requires weeks of developer time and training — a non-starter for non-technical teams.
 - **Airtable Enterprise:** Starts at ~$45/seat/month with a minimum seat requirement — easily 10x the cost for small teams hitting basic limits.
 
-> 📌 **The Gap AirBridge Fills:** Users don't want to leave Airtable. They love the interface, their existing bases, and their workflows. AirBridge is the only tool that extends Airtable without replacing it — acting as an invisible layer underneath that removes limits while preserving the familiar front-end experience.
+> 📌 **The Gap VayuBridge Fills:** Users don't want to leave Airtable. They love the interface, their existing bases, and their workflows. VayuBridge is the only tool that extends Airtable without replacing it — acting as an invisible layer underneath that removes limits while preserving the familiar front-end experience.
 
 ---
 
@@ -86,7 +86,7 @@ The following limitations are documented in Airtable's official support pages an
 | The Power User Developer | Developer using Airtable as a lightweight backend or internal tool. Comfortable with APIs. | 5 req/sec rate limit and 1K calls/month blocks reliable integrations; wants a real database underneath. | $29–49/mo |
 | The SMB Owner | Runs a small business (e-commerce, agency, services). Uses Airtable for CRM, inventory, or project tracking. | Record cap blocking growth; doesn't want to hire a developer to migrate to a "real" database. | $19–29/mo |
 
-### 3.2 Who AirBridge Is NOT For
+### 3.2 Who VayuBridge Is NOT For
 
 - Large enterprises already on Airtable's Business or Enterprise tier (they have relaxed limits)
 - Teams willing to fully migrate to Supabase, Notion, or a custom database stack
@@ -98,7 +98,7 @@ The following limitations are documented in Airtable's official support pages an
 
 ### 4.1 MVP Goals (Week 1–2 Launch)
 
-1. Connect a user's Airtable base to AirBridge via OAuth in under 2 minutes
+1. Connect a user's Airtable base to VayuBridge via OAuth in under 2 minutes
 2. Perform an initial full sync of all records from Airtable to PostgreSQL (Supabase)
 3. Maintain real-time sync via Airtable webhooks (changes reflected in <30 seconds)
 4. Provide a query dashboard where users can search and filter the full dataset without record-display limits
@@ -108,7 +108,7 @@ The following limitations are documented in Airtable's official support pages an
 ### 4.2 Post-MVP Goals (Month 2–3)
 
 1. Automation overflow builder: create additional automations that trigger on Airtable field changes
-2. Bidirectional sync: allow users to edit records in AirBridge dashboard and push changes back to Airtable
+2. Bidirectional sync: allow users to edit records in VayuBridge dashboard and push changes back to Airtable
 3. API access: expose a REST API for each synced base, bypassing Airtable's rate limits
 4. White-label / agency mode: manage multiple client bases from one account
 
@@ -129,11 +129,11 @@ The following limitations are documented in Airtable's official support pages an
 
 ### 5.1 Airtable Connection & OAuth
 
-**Description:** Users connect their Airtable workspace via Airtable's official OAuth 2.0 flow. AirBridge stores OAuth access tokens and refresh tokens encrypted in Supabase. Users can connect multiple bases from the same or different workspaces.
+**Description:** Users connect their Airtable workspace via Airtable's official OAuth 2.0 flow. VayuBridge stores OAuth access tokens and refresh tokens encrypted in Supabase. Users can connect multiple bases from the same or different workspaces.
 
 **Acceptance Criteria:**
 - User clicks 'Connect Airtable' and is redirected to Airtable's OAuth consent screen
-- After authorization, AirBridge receives and securely stores the access token and refresh token
+- After authorization, VayuBridge receives and securely stores the access token and refresh token
 - User sees a list of all bases and tables in their connected workspace
 - Token refresh is handled automatically before expiry — no user action required
 - User can disconnect a base at any time, which stops sync and deletes stored tokens
@@ -144,7 +144,7 @@ The following limitations are documented in Airtable's official support pages an
 
 ### 5.2 Initial Full Sync
 
-**Description:** When a user first connects a base, AirBridge performs a paginated full sync of all records from all selected tables to Supabase PostgreSQL. The sync is non-blocking — users see a progress indicator and can navigate away.
+**Description:** When a user first connects a base, VayuBridge performs a paginated full sync of all records from all selected tables to Supabase PostgreSQL. The sync is non-blocking — users see a progress indicator and can navigate away.
 
 **Acceptance Criteria:**
 - Sync pulls records in batches of 100 (Airtable API max page size)
@@ -158,13 +158,13 @@ The following limitations are documented in Airtable's official support pages an
 
 ### 5.3 Real-Time Sync via Webhooks
 
-**Description:** After the initial sync, AirBridge registers Airtable webhooks to receive real-time change notifications. When records are created, updated, or deleted in Airtable, the changes are reflected in the Supabase database within 30 seconds.
+**Description:** After the initial sync, VayuBridge registers Airtable webhooks to receive real-time change notifications. When records are created, updated, or deleted in Airtable, the changes are reflected in the Supabase database within 30 seconds.
 
 **Acceptance Criteria:**
 - Webhook is registered automatically after initial sync — no user configuration needed
 - Create, update, and delete events are handled correctly
 - Webhook endpoint processes payloads within 500ms
-- If a webhook delivery fails, AirBridge falls back to a periodic poll every 15 minutes
+- If a webhook delivery fails, VayuBridge falls back to a periodic poll every 15 minutes
 - Webhook health status is visible in the user's dashboard (*"Active / Last received: 2 min ago"*)
 
 ---
@@ -186,7 +186,7 @@ The following limitations are documented in Airtable's official support pages an
 
 ### 5.5 Automation Overflow Builder
 
-**Description:** A visual rule builder that lets users create additional automations that run on AirBridge's infrastructure, bypassing Airtable's 50-automation limit. Rules trigger on Airtable field changes (detected via webhook) and can execute: send email, send webhook to external URL, update another Airtable record, or send a Slack message.
+**Description:** A visual rule builder that lets users create additional automations that run on VayuBridge's infrastructure, bypassing Airtable's 50-automation limit. Rules trigger on Airtable field changes (detected via webhook) and can execute: send email, send webhook to external URL, update another Airtable record, or send a Slack message.
 
 **Acceptance Criteria:**
 - Rule builder UI: *"When [table] [field] changes to [value], then [action]"*
@@ -237,7 +237,7 @@ Payments are processed via **Dodopayments**, which acts as Merchant of Record �
 
 | Table | Key Fields | Purpose |
 |---|---|---|
-| `users` | id, email, plan_tier, stripe_customer_id, created_at | AirBridge user accounts |
+| `users` | id, email, plan_tier, stripe_customer_id, created_at | VayuBridge user accounts |
 | `connected_bases` | id, user_id, airtable_base_id, base_name, access_token_enc, refresh_token_enc, webhook_id, sync_status, last_synced_at | Each connected Airtable base |
 | `sync_log` | id, base_id, table_name, records_synced, status, error_message, started_at, completed_at | Audit trail for all sync operations |
 | `automations` | id, user_id, base_id, trigger_table, trigger_field, trigger_value, action_type, action_config, is_active, last_run_at | Overflow automation rules |
@@ -305,11 +305,11 @@ Synced Airtable data lives in dynamically-created tables following the naming co
 
 ### US-001 — Connect Airtable Base
 
-> As an Airtable user who has hit record limits, I want to connect my base to AirBridge in under 3 minutes so that I can immediately access my full dataset without Airtable's display restrictions.
+> As an Airtable user who has hit record limits, I want to connect my base to VayuBridge in under 3 minutes so that I can immediately access my full dataset without Airtable's display restrictions.
 
-- **Given** I'm on the AirBridge dashboard, **when** I click 'Connect Airtable', **then** I am redirected to Airtable's OAuth consent screen
-- **Given** I authorize AirBridge, **when** I return to the dashboard, **then** I see my workspace's bases listed within 5 seconds
-- **Given** I select a base, **when** I click 'Start Sync', **then** AirBridge begins syncing and shows real-time progress
+- **Given** I'm on the VayuBridge dashboard, **when** I click 'Connect Airtable', **then** I am redirected to Airtable's OAuth consent screen
+- **Given** I authorize VayuBridge, **when** I return to the dashboard, **then** I see my workspace's bases listed within 5 seconds
+- **Given** I select a base, **when** I click 'Start Sync', **then** VayuBridge begins syncing and shows real-time progress
 
 ### US-002 — Query Full Dataset
 
@@ -321,20 +321,20 @@ Synced Airtable data lives in dynamically-created tables following the naming co
 
 ### US-003 — Create Overflow Automation
 
-> As a no-code builder who has maxed out Airtable's 50 automations, I want to create additional rules in AirBridge so my client's workflow continues to operate correctly.
+> As a no-code builder who has maxed out Airtable's 50 automations, I want to create additional rules in VayuBridge so my client's workflow continues to operate correctly.
 
 - **Given** I'm on the automations page, **when** I click 'New Rule', **then** I see a 3-step builder: trigger, condition, action
-- **Given** I set a trigger on 'Status field changes to Done', **when** a record is updated in Airtable, **then** AirBridge fires the action within 30 seconds
+- **Given** I set a trigger on 'Status field changes to Done', **when** a record is updated in Airtable, **then** VayuBridge fires the action within 30 seconds
 - **Given** my automation fires, **then** I can see it logged in execution history with status, timestamp, and any error details
 
 ---
 
 ## 9. Out of Scope (Non-Goals) for MVP
 
-- Full Airtable replacement or migration tool — AirBridge is a complement, not a competitor
+- Full Airtable replacement or migration tool — VayuBridge is a complement, not a competitor
 - Custom views (gallery, calendar, kanban) — the query dashboard is grid/table only in v1
 - Mobile app — web-first only
-- Native Airtable extension or block — AirBridge runs as a standalone web app
+- Native Airtable extension or block — VayuBridge runs as a standalone web app
 - Support for Airtable's attachment/file field content in the synced database — only metadata is synced
 - AI-powered data analysis — potential v2 feature
 - Multi-tenant white-label (custom domain per client) — considered for v3
@@ -349,20 +349,20 @@ Synced Airtable data lives in dynamically-created tables following the naming co
 | Vercel function timeout on large initial syncs | Medium | Medium | Use Upstash QStash for async processing; break initial sync into chunks of 1,000 records per invocation |
 | Supabase schema conflicts for non-standard Airtable field types | Medium | Low | Map all Airtable field types to safe PostgreSQL types; use JSONB for complex types (linked records, lookup fields) |
 | Dodopayments not available in user's country | Low | Medium | Dodopayments covers 220+ countries; edge cases handled with Razorpay as fallback for Indian domestic customers |
-| Airtable blocks 3rd-party integrations (policy change) | Very Low | Very High | AirBridge uses Airtable's official API and OAuth — fully sanctioned access. Risk is existential but extremely unlikely given Airtable's open API strategy |
+| Airtable blocks 3rd-party integrations (policy change) | Very Low | Very High | VayuBridge uses Airtable's official API and OAuth — fully sanctioned access. Risk is existential but extremely unlikely given Airtable's open API strategy |
 | Low free-to-paid conversion | Medium | High | Free tier is deliberately restrictive (1 base, 5K records) to push power users to Growth plan; add in-app upgrade prompts triggered at 80% limit usage |
 
 ---
 
 ## 11. Acquisition Strategy
 
-AirBridge is positioned for acquisition from the outset. The product sits in the ecosystem of three categories of potential strategic acquirers:
+VayuBridge is positioned for acquisition from the outset. The product sits in the ecosystem of three categories of potential strategic acquirers:
 
 | Acquirer Type | Examples | Strategic Reason | Likely Acquisition Stage |
 |---|---|---|---|
-| No-code platforms | Airtable itself, Notion, Coda | AirBridge users are Airtable power users — the most engaged segment. Acquiring AirBridge means acquiring a proven middleware layer and a customer list of high-value users already pushing limits | $3K–10K MRR |
-| Automation platforms | Zapier, Make (Integromat) | AirBridge's automation overflow module competes with how users currently use Zapier to work around Airtable limits. Acquiring AirBridge deepens their Airtable integration story | $5K–20K MRR |
-| Database/BaaS platforms | Supabase, PlanetScale, Neon | AirBridge proves there is demand for a no-code-friendly SQL layer on top of Airtable workflows. The product validates a market segment they can serve at scale | $3K–15K MRR |
+| No-code platforms | Airtable itself, Notion, Coda | VayuBridge users are Airtable power users — the most engaged segment. Acquiring VayuBridge means acquiring a proven middleware layer and a customer list of high-value users already pushing limits | $3K–10K MRR |
+| Automation platforms | Zapier, Make (Integromat) | VayuBridge's automation overflow module competes with how users currently use Zapier to work around Airtable limits. Acquiring VayuBridge deepens their Airtable integration story | $5K–20K MRR |
+| Database/BaaS platforms | Supabase, PlanetScale, Neon | VayuBridge proves there is demand for a no-code-friendly SQL layer on top of Airtable workflows. The product validates a market segment they can serve at scale | $3K–15K MRR |
 
 > 🎯 **Acquisition Preparation Checklist:**
 > - Document MRR, churn, and activation rate from day 1 — use Dodopayments dashboards as source of truth
@@ -420,4 +420,4 @@ AirBridge is positioned for acquisition from the outset. The product sits in the
 
 ---
 
-*AirBridge PRD v1.0 — March 2026 — Confidential*
+*VayuBridge PRD v1.0 — March 2026 — Confidential*
