@@ -54,10 +54,10 @@ export function BaseSelector() {
     }
   }
 
-  function handleSyncComplete() {
+  const handleSyncComplete = useCallback(() => {
     setSyncing(null)
-    fetchBases() // refresh status
-  }
+    fetchBases()
+  }, [fetchBases])
 
   if (loading) {
     return <p className="text-sm text-muted-foreground">Loading connected bases…</p>
