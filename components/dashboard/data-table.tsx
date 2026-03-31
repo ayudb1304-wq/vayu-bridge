@@ -39,7 +39,7 @@ function cellToString(value: unknown): string {
   return String(value)
 }
 
-const EXPAND_THRESHOLD = 60 // chars — shorter values don't get the expand icon
+const EXPAND_THRESHOLD = 30 // chars — shorter values don't get the expand icon
 
 export function DataTable({ columns, data, isFetching, hasMore, onBottomReached }: Props) {
   const sentinelRef = useRef<HTMLDivElement>(null)
