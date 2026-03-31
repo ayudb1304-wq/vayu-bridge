@@ -19,10 +19,12 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
 
-  function getRedirectUrl() {
-    const callback = new URL("/auth/callback", location.origin)
-    if (plan) callback.searchParams.set("plan", plan)
-    return callback.toString()
+  // Store plan intent in localStorage so the redirect URL stays clean
+  // (Supabase requires exact redirect URL match for OAuth providers)
+  function savePlanIntent() {
+    if (plan) {
+      localStorage.setItem("checkout_plan", plan)
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -30,11 +32,12 @@ export function LoginForm() {
     setLoading(true)
     setError(null)
 
+    savePlanIntent()
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: getRedirectUrl(),
+        emailRedirectTo: `${location.origin}/auth/callback`,
       },
     })
 
@@ -50,11 +53,12 @@ export function LoginForm() {
     setGoogleLoading(true)
     setError(null)
 
+    savePlanIntent()
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: getRedirectUrl(),
+        redirectTo: `${location.origin}/auth/callback`,
       },
     })
 

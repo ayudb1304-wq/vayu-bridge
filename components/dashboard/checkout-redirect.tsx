@@ -7,12 +7,18 @@ export function CheckoutRedirect() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const triggered = useRef(false)
-  const plan = searchParams.get("checkout")
+
+  // Check both URL param and localStorage for checkout intent
+  const urlPlan = searchParams.get("checkout")
 
   useEffect(() => {
-    if (!plan || triggered.current) return
-    if (plan !== "growth" && plan !== "scale") return
+    if (triggered.current) return
+    const plan = urlPlan || localStorage.getItem("checkout_plan")
+    if (!plan || (plan !== "growth" && plan !== "scale")) return
+
     triggered.current = true
+    // Clear stored intent immediately
+    localStorage.removeItem("checkout_plan")
 
     async function startCheckout() {
       const res = await fetch("/api/payments/checkout", {
@@ -24,22 +30,12 @@ export function CheckoutRedirect() {
       if (data.url) {
         window.location.href = data.url
       } else {
-        // Clear the param if checkout fails
         router.replace("/dashboard")
       }
     }
 
     startCheckout()
-  }, [plan, router])
+  }, [urlPlan, router])
 
-  if (!plan) return null
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-      <div className="text-center space-y-2">
-        <div className="h-6 w-6 mx-auto animate-spin rounded-full border-2 border-foreground border-t-transparent" />
-        <p className="text-sm text-muted-foreground">Redirecting to checkout…</p>
-      </div>
-    </div>
-  )
+  return null
 }
