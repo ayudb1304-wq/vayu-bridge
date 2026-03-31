@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server"
 import { createServiceClient } from "@/utils/supabase/service"
 import { createQStashClient } from "@/lib/qstash"
+import { getPlanLimits, isAtLimit } from "@/lib/plans"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
@@ -34,8 +35,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Base not found" }, { status: 404 })
     }
 
-    // Create a sync_log entry
+    // Plan enforcement: check record limit
     const db = createServiceClient()
+    const { data: userRow } = await db
+      .from("users")
+      .select("plan_tier")
+      .eq("id", user.id)
+      .single()
+
+    const limits = getPlanLimits(userRow?.plan_tier ?? "free")
+
+    const { count: recordCount } = await db
+      .from("synced_records")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user.id)
+
+    if (isAtLimit(recordCount ?? 0, limits.maxSyncedRecords)) {
+      return NextResponse.json(
+        { error: "Record limit reached. Upgrade your plan to sync more records." },
+        { status: 403 }
+      )
+    }
+
+    // Create a sync_log entry
     const { data: log, error: logError } = await db
       .from("sync_log")
       .insert({

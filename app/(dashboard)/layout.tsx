@@ -1,7 +1,9 @@
 import { createClient } from "@/utils/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
+import { Suspense } from "react"
 import { Button } from "@/components/ui/button"
+import { UsageBarServer } from "@/components/dashboard/usage-bar-server"
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -33,6 +35,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </Button>
         </form>
       </header>
+      <div className="border-b border-border px-6 py-3">
+        <Suspense>
+          <UsageBarServer userId={user.id} />
+        </Suspense>
+      </div>
       <main className="p-6">{children}</main>
     </div>
   )

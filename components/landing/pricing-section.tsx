@@ -1,9 +1,10 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { motion, useInView } from "framer-motion"
-import { Check, Minus, Lock, Clock, Zap, Star, TrendingUp, AlertTriangle } from "lucide-react"
+import { Check, Minus, Clock, Zap, Star, TrendingUp, AlertTriangle, Loader2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { WaitlistForm } from "@/components/waitlist-form"
@@ -150,15 +151,58 @@ function PlanCard({ plan, index }: { plan: (typeof plans)[0]; index: number }) {
           })}
         </div>
 
-        {/* Coming Soon CTA */}
+        {/* CTA */}
         <div className="p-6 pt-0">
-          <div className="flex h-9 w-full items-center justify-center gap-2 rounded-md border border-border bg-muted/50 text-xs font-medium text-muted-foreground">
-            <Lock className="h-3 w-3" />
-            Coming Soon — Join waitlist below
-          </div>
+          <PlanCTA planId={plan.id} highlight={plan.highlight} />
         </div>
       </Card>
     </motion.div>
+  )
+}
+
+function PlanCTA({ planId, highlight }: { planId: string; highlight: boolean }) {
+  const [loading, setLoading] = useState(false)
+
+  if (planId === "free") {
+    return (
+      <Button variant="outline" className="w-full" asChild>
+        <a href="/login">Get Started Free</a>
+      </Button>
+    )
+  }
+
+  async function handleCheckout() {
+    setLoading(true)
+    try {
+      const res = await fetch("/api/payments/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: planId }),
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        // Not logged in — redirect to login first
+        window.location.href = `/login?redirect=/dashboard&plan=${planId}`
+      }
+    } catch {
+      window.location.href = "/login"
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <Button
+      className="w-full"
+      variant={highlight ? "default" : "outline"}
+      onClick={handleCheckout}
+      disabled={loading}
+    >
+      {loading && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
+      {planId === "growth" ? "Start Growth Trial" : "Start Scale Trial"}
+    </Button>
   )
 }
 

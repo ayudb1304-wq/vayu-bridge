@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server"
+import { getPlanLimits, isAtLimit } from "@/lib/plans"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
@@ -42,6 +43,27 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (!base) return NextResponse.json({ error: "Base not found" }, { status: 404 })
+
+  // Plan enforcement: check automation limit
+  const { data: userRow } = await supabase
+    .from("users")
+    .select("plan_tier")
+    .eq("id", user.id)
+    .single()
+
+  const limits = getPlanLimits(userRow?.plan_tier ?? "free")
+
+  const { count: automationCount } = await supabase
+    .from("automations")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+
+  if (isAtLimit(automationCount ?? 0, limits.maxAutomations)) {
+    return NextResponse.json(
+      { error: "Automation limit reached. Upgrade your plan to create more automations." },
+      { status: 403 }
+    )
+  }
 
   const { data, error } = await supabase
     .from("automations")

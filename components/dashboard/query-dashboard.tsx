@@ -10,12 +10,16 @@ import { TableStatsBar } from "./table-stats-bar"
 import { TableTabs } from "./table-tabs"
 import { useRecords, type SyncedRecord } from "@/hooks/use-records"
 
+import { getPlanLimits } from "@/lib/plans"
+import type { PlanTier } from "@/lib/plans"
+
 type Props = {
   baseId: string
   baseName: string
   tables: string[]
   lastSyncedAt: string | null
   initialColumnKeys: string[]
+  planTier?: PlanTier
 }
 
 function renderCellValue(value: unknown): React.ReactNode {
@@ -37,7 +41,8 @@ function renderCellValue(value: unknown): React.ReactNode {
   return String(value)
 }
 
-export function QueryDashboard({ baseId, baseName, tables, lastSyncedAt, initialColumnKeys }: Props) {
+export function QueryDashboard({ baseId, baseName, tables, lastSyncedAt, initialColumnKeys, planTier = "free" }: Props) {
+  const planLimits = getPlanLimits(planTier)
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -128,6 +133,10 @@ export function QueryDashboard({ baseId, baseName, tables, lastSyncedAt, initial
   }
 
   async function handleExportCSV() {
+    if (!planLimits.csvExport) {
+      alert("CSV export is available on Growth and Scale plans. Upgrade to export your data.")
+      return
+    }
     setIsExporting(true)
     try {
       const rows = await fetchAllForExport()
@@ -152,6 +161,10 @@ export function QueryDashboard({ baseId, baseName, tables, lastSyncedAt, initial
   }
 
   async function handleExportXLSX() {
+    if (!planLimits.excelExport) {
+      alert("Excel export is available on Growth and Scale plans. Upgrade to export your data.")
+      return
+    }
     setIsExporting(true)
     try {
       const rows = await fetchAllForExport()

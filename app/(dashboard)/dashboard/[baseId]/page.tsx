@@ -24,6 +24,15 @@ export default async function BaseQueryPage({
 
   if (!base) notFound()
 
+  // Get user's plan tier for export gating
+  const { data: userRow } = await supabase
+    .from("users")
+    .select("plan_tier")
+    .eq("id", user.id)
+    .single()
+
+  const planTier = (userRow?.plan_tier ?? "free") as "free" | "growth" | "scale"
+
   // Discover distinct tables
   const { data: tableRows } = await supabase
     .from("synced_records")
@@ -74,6 +83,7 @@ export default async function BaseQueryPage({
         tables={tables}
         lastSyncedAt={base.last_synced_at}
         initialColumnKeys={initialColumnKeys}
+        planTier={planTier}
       />
     </Suspense>
   )

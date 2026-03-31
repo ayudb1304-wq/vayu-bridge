@@ -4,7 +4,10 @@
       "Bash(npm install:*)",
       "Bash(npx shadcn:*)",
       "mcp__claude_ai_Supabase__list_tables",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "WebSearch",
+      "WebFetch(domain:docs.dodopayments.com)",
+      "Bash(npx shadcn@latest add alert -y)"
     ]
   }
 }
