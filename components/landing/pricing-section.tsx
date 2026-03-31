@@ -201,7 +201,7 @@ function PlanCTA({ planId, highlight }: { planId: string; highlight: boolean }) 
       disabled={loading}
     >
       {loading && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
-      {planId === "growth" ? "Start Growth Trial" : "Start Scale Trial"}
+      {planId === "growth" ? "Get Growth" : "Get Scale"}
     </Button>
   )
 }

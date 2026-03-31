@@ -37,6 +37,9 @@ export const updateSession = async (request: NextRequest) => {
   if (pathname.startsWith("/dashboard") && !user) {
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = "/login"
+    // Preserve checkout intent so it survives the login redirect
+    const checkout = request.nextUrl.searchParams.get("checkout")
+    if (checkout) loginUrl.searchParams.set("plan", checkout)
     return NextResponse.redirect(loginUrl)
   }
 
@@ -44,6 +47,9 @@ export const updateSession = async (request: NextRequest) => {
   if (pathname === "/login" && user) {
     const dashboardUrl = request.nextUrl.clone()
     dashboardUrl.pathname = "/dashboard"
+    // Preserve plan param as checkout param so dashboard can trigger checkout
+    const plan = request.nextUrl.searchParams.get("plan")
+    if (plan) dashboardUrl.searchParams.set("checkout", plan)
     return NextResponse.redirect(dashboardUrl)
   }
 
