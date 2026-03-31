@@ -50,9 +50,9 @@ export async function GET(
     .eq("connected_base_id", baseId)
     .eq("airtable_table_name", table)
 
-  // Search — cast entire JSONB to text (.filter supports expression syntax; .ilike does not)
+  // Search on generated fields_text column (fields::text stored, GIN trigram index)
   if (search) {
-    query = query.filter("fields::text", "ilike", `%${search}%`)
+    query = query.ilike("fields_text", `%${search}%`)
   }
 
   // Column filters
