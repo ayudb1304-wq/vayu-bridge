@@ -60,10 +60,15 @@ export async function getValidAccessToken(base: BaseRow): Promise<string> {
 /** Fetch any Airtable API endpoint; throws on non-2xx. */
 export async function airtableFetch<T = unknown>(
   url: string,
-  token: string
+  token: string,
+  init?: Omit<RequestInit, "headers">
 ): Promise<T> {
   const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` },
+    ...init,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      ...(init?.body ? { "Content-Type": "application/json" } : {}),
+    },
   })
   if (!res.ok) {
     const text = await res.text()

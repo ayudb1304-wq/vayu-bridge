@@ -19,6 +19,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <Link href="/dashboard" className="font-mono font-bold text-lg tracking-tight">
           VayuBridge
         </Link>
+        <nav className="flex items-center gap-1">
+          <Link href="/dashboard" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted">
+            Bases
+          </Link>
+          <Link href="/dashboard/automations" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted">
+            Automations
+          </Link>
+        </nav>
         <form action="/auth/signout" method="post">
           <Button variant="ghost" size="sm" type="submit">
             Sign out

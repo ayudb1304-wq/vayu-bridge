@@ -1,6 +1,7 @@
 import { createServiceClient } from "@/utils/supabase/service"
 import { decrypt } from "@/lib/crypto"
 import { airtableFetch, getValidAccessToken } from "@/lib/airtable"
+import { executeAutomations } from "@/lib/automations"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import crypto from "crypto"
@@ -69,6 +70,12 @@ export async function POST(request: NextRequest) {
     token
   )
 
+  const changedRecords: Array<{
+    airtable_record_id: string
+    airtable_table_name: string
+    fields: Record<string, unknown>
+  }> = []
+
   for (const event of payloadData.payloads) {
     if (!event.changedTablesById) continue
 
@@ -78,7 +85,7 @@ export async function POST(request: NextRequest) {
         const rows = Object.entries(tableChanges.createdRecordsById).map(([recordId, data]) => ({
           connected_base_id: base.id,
           airtable_table_id: tableId,
-          airtable_table_name: tableId, // name not available in webhook payload
+          airtable_table_name: tableId,
           airtable_record_id: recordId,
           fields: data.cellValuesByFieldId,
           updated_at: new Date().toISOString(),
@@ -87,6 +94,9 @@ export async function POST(request: NextRequest) {
           await db.from("synced_records").upsert(rows, {
             onConflict: "connected_base_id,airtable_table_id,airtable_record_id",
           })
+          for (const row of rows) {
+            changedRecords.push({ airtable_record_id: row.airtable_record_id, airtable_table_name: tableId, fields: row.fields })
+          }
         }
       }
 
@@ -104,6 +114,9 @@ export async function POST(request: NextRequest) {
           await db.from("synced_records").upsert(rows, {
             onConflict: "connected_base_id,airtable_table_id,airtable_record_id",
           })
+          for (const row of rows) {
+            changedRecords.push({ airtable_record_id: row.airtable_record_id, airtable_table_name: tableId, fields: row.fields })
+          }
         }
       }
 
@@ -117,6 +130,9 @@ export async function POST(request: NextRequest) {
       }
     }
   }
+
+  // Execute automations for all changed records (non-blocking failures via Promise.allSettled)
+  await executeAutomations(db, base, changedRecords)
 
   // Update last_synced_at
   await db.from("connected_bases").update({

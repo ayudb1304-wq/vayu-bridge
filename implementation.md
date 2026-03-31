@@ -348,17 +348,20 @@
 
 ### Tasks
 
-- [ ] Create `automations` + `automation_runs` Supabase tables (migration)
-- [ ] Build `app/(dashboard)/dashboard/automations/page.tsx`
-- [ ] Build `components/dashboard/automation-builder.tsx`
-  - Step 1: Trigger — "When [table] [field] changes to [value]"
-  - Step 2: Action — HTTP POST / Send Email (Resend) / Update Airtable Record
-  - shadcn components: `Select`, `Input`, `Card`, `Button`, `Switch`
-- [ ] Implement automation execution in `app/api/webhooks/airtable/route.ts`
-  - On each webhook event, query matching automation rules, execute actions
-  - Log each run to `automation_runs`
-- [ ] Install `resend` SDK for email actions
-- [ ] Build `components/dashboard/automation-run-log.tsx` — last 50 runs, status, timestamp
+- [x] Create `automations` + `automation_runs` Supabase tables (migration: `20260331_create_automations.sql`)
+- [x] Build `app/(dashboard)/dashboard/automations/page.tsx`
+- [x] Build `components/dashboard/automation-builder.tsx`
+  - Trigger: "When [table] [field] [condition] [value]" — conditions: any_change, not_empty, eq, contains
+  - Actions: HTTP POST (custom headers) / Send Email (Resend, `{{field}}` templates) / Update Airtable Record
+  - shadcn components: `Select`, `Input`, `Card`, `Button`, `Switch`, `Sheet`
+- [x] Implement automation execution in `lib/automations.ts` + wired into `app/api/webhooks/airtable/route.ts`
+  - Single bulk query per webhook event (partial index on enabled automations)
+  - `Promise.allSettled` concurrent execution, 3s AbortController timeout per HTTP action
+  - Logs each run to `automation_runs`
+- [x] Install `resend` SDK for email actions
+- [x] Build `components/dashboard/automation-run-log.tsx` — last 50 runs, status, timestamp, error
+- [x] Build `components/dashboard/automation-card.tsx` — enable toggle (optimistic), run log sheet, delete
+- [x] Add Automations nav link to dashboard layout
 
 ### Exit Criteria — Phase 6
 
