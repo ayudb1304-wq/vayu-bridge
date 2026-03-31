@@ -46,13 +46,13 @@ export async function GET(
 
   let query = supabase
     .from("synced_records")
-    .select("id, airtable_record_id, fields", cursor ? undefined : { count: "exact" })
+    .select("id, airtable_record_id, fields, created_at", cursor ? undefined : { count: "exact" })
     .eq("connected_base_id", baseId)
     .eq("airtable_table_name", table)
 
-  // Search — cast entire JSONB to text
+  // Search — cast entire JSONB to text (.filter supports expression syntax; .ilike does not)
   if (search) {
-    query = query.ilike("fields::text", `%${search}%`)
+    query = query.filter("fields::text", "ilike", `%${search}%`)
   }
 
   // Column filters

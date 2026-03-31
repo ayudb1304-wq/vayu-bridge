@@ -11,7 +11,6 @@ type ActiveFilter = {
 
 type Props = {
   totalCount: number | null
-  filteredCount?: number | null
   lastSyncedAt: string | null
   activeFilters: ActiveFilter[]
   onRemoveFilter: (index: number) => void
@@ -19,19 +18,14 @@ type Props = {
 
 export function TableStatsBar({
   totalCount,
-  filteredCount,
   lastSyncedAt,
   activeFilters,
   onRemoveFilter,
 }: Props) {
-  const isFiltered = activeFilters.length > 0 || filteredCount !== totalCount
-
   return (
     <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
       <span className="font-mono">
-        {isFiltered && filteredCount !== null
-          ? `${filteredCount?.toLocaleString()} of ${totalCount?.toLocaleString() ?? "…"} records`
-          : `${totalCount?.toLocaleString() ?? "…"} records`}
+        {totalCount?.toLocaleString() ?? "…"} records
       </span>
 
       {lastSyncedAt && (
